@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr, field_validator
 
 from app.schemas.role import Role
@@ -12,7 +14,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
-    role: UserRole
+    role: Optional[UserRole] = UserRole.customer
 
     @field_validator('password')
     def password_complexity_check(cls, v):

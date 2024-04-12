@@ -12,5 +12,6 @@ class User(Base):
     email = Column(String(255), unique=True, index=True)
     password = Column(String(255), index=True)
     role_id = Column(Integer, ForeignKey('roles.id'))
+
     role = relationship("Role", back_populates="users")
-# books = relationship("Book", back_populates="owner")
+    borrowed_books = relationship("BorrowedBook", back_populates="user")

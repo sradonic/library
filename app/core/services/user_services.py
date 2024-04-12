@@ -10,6 +10,7 @@ from app.core.auth.password_security import get_password_hash
 
 
 def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
+    check_user_existence(user.username, user.email, db)
     db_role = db.query(Role).filter(Role.name == UserRole.customer).first()
     if not db_role:
         raise HTTPException(status_code=400, detail="Role not found")
@@ -51,3 +52,14 @@ def get_users(role: Optional[str] = None, skip: int = 0, limit: int = 100, db: S
 
 def get_user_by_id(user_id: int, db: Session = Depends(get_db)) -> User:
     return db.query(User).filter(User.id == user_id).first()
+
+
+def check_user_existence(username: str, email: str, db: Session):
+    existing_user = db.query(User).filter(
+        (User.email == email) | (User.username == username)
+    ).first()
+    if existing_user:
+        if existing_user.email == email:
+            raise HTTPException(status_code=400, detail="A user with this email already exists.")
+        elif existing_user.username == username:
+            raise HTTPException(status_code=400, detail="A user with this username already exists.")
