@@ -2,6 +2,7 @@ from typing import Optional, Type
 from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException
 
+from app.constants.user_role import UserRole
 from app.database.database import get_db
 from app.models import User, Role
 from app.schemas.user import UserCreate
@@ -9,7 +10,7 @@ from app.core.auth.password_security import get_password_hash
 
 
 def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
-    db_role = db.query(Role).filter(Role.name == user.role).first()
+    db_role = db.query(Role).filter(Role.name == UserRole.customer).first()
     if not db_role:
         raise HTTPException(status_code=400, detail="Role not found")
 
@@ -21,6 +22,20 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
         role_id=db_role.id
     )
     db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def update_user(user_id: int, user_data: UserCreate, db: Session = Depends(get_db)) -> User:
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    db_user.email = user_data.email
+    db_user.username = user_data.username
+    db_user.name = user_data.name
+    db_user.password = get_password_hash(user_data.password)
     db.commit()
     db.refresh(db_user)
     return db_user

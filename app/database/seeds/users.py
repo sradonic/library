@@ -5,7 +5,7 @@ from app.constants.user_role import UserRole
 from passlib.context import CryptContext
 
 admin_email = "admin@example.com"
-admin_password = "secret"
+admin_password = "Secret123!"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

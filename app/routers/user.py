@@ -5,7 +5,7 @@ from fastapi import Depends, APIRouter, HTTPException, status
 from app.core.auth import get_current_active_user, RoleChecker
 from app.schemas import User, UserCreate
 from app.constants.user_role import UserRole
-from app.core.services import create_user, get_users, get_user_by_id
+from app.core.services import create_user, get_users, get_user_by_id, update_user
 from app.database.database import get_db
 
 router = APIRouter()
@@ -18,9 +18,17 @@ async def read_users_me(
     return current_user
 
 
-@router.post("/users/", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin]))])
+@router.post("/users/", response_model=User)
 async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(user=user, db=db)
+
+
+@router.put("/users/{user_id}", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin]))])
+async def edit_user_details(user_id: int, user_data: UserCreate, db: Session = Depends(get_db),
+                            current_user: User = Depends(get_current_active_user)):
+    if current_user.role.name != UserRole.admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit user details")
+    return update_user(user_id, user_data, db)
 
 
 @router.get("/users/", response_model=List[User],
