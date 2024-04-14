@@ -1,4 +1,4 @@
-from .user import User, UserBase, UserCreate
+from .user import User, UserBase, UserCreate, UserUpdate
 from .role import Role
 from .token import Token
 from .book import Book

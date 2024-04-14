@@ -33,3 +33,18 @@ class User(UserBase):
 
     class Config:
         orm_mode = True
+
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    role: Optional[UserRole] = None
+
+    @field_validator('role')
+    def validate_role(cls, v):
+        if v:
+            return UserRole[v.lower()]
+        return None
+
+    class Config:
+        orm_mode = True

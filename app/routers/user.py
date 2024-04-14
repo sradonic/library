@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from fastapi import Depends, APIRouter, HTTPException, status
 from app.core.auth import get_current_active_user, RoleChecker
-from app.schemas import User, UserCreate
+from app.schemas import User, UserCreate, UserUpdate
 from app.constants.user_role import UserRole
 from app.core.services import create_user, get_users, get_user_by_id, update_user
 from app.database.database import get_db
@@ -24,7 +24,7 @@ async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
 
 
 @router.put("/users/{user_id}", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin]))])
-async def edit_user_details(user_id: int, user_data: UserCreate, db: Session = Depends(get_db),
+async def edit_user_details(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db),
                             current_user: User = Depends(get_current_active_user)):
     if current_user.role.name != UserRole.admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit user details")

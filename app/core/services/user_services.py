@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException
 from app.constants.user_role import UserRole
 from app.database.database import get_db
 from app.models import User, Role
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.auth.password_security import get_password_hash
 
 
@@ -28,15 +28,22 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)) -> User:
     return db_user
 
 
-def update_user(user_id: int, user_data: UserCreate, db: Session = Depends(get_db)) -> User:
+def update_user(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db)) -> User:
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    db_user.email = user_data.email
-    db_user.username = user_data.username
-    db_user.name = user_data.name
-    db_user.password = get_password_hash(user_data.password)
+    for var, value in vars(user_data).items():
+        if value is not None:
+            if var == 'role':
+                role_instance = db.query(Role).filter_by(name=value).first()
+                if role_instance:
+                    setattr(db_user, var, role_instance)
+                else:
+                    raise HTTPException(status_code=404, detail="Role not found")
+            else:
+                setattr(db_user, var, value)
+
     db.commit()
     db.refresh(db_user)
     return db_user

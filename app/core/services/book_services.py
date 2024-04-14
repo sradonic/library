@@ -16,6 +16,9 @@ def view_all_books(db: Session = Depends(get_db), skip: int = 0, limit: int = 10
         "books": [BookSchema.from_orm(book) for book in books]
     }
 
+def view_book(book_id: int, db: Session = Depends(get_db)) -> Book:
+    return db.query(Book).filter(Book.id == book_id).first()
+
 def view_books_for_user(user_id: int, db: Session = Depends(get_db)) -> List[BorrowedBook]:
     return db.query(BorrowedBook).filter(BorrowedBook.user_id == user_id).all()
 
@@ -62,6 +65,3 @@ def edit_book_return_date(borrowed_book_id: int, return_date: str, db: Session =
         return borrowed_book
     else:
         raise HTTPException(status_code=404, detail="Borrowed book not found")
-
-def view_customer_books(user: User, db: Session = Depends(get_db)) -> List[BorrowedBook]:
-    return view_books_for_user(user.id, db)

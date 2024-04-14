@@ -1,13 +1,14 @@
 from fastapi import FastAPI
 from app.routers import user, auth, book
 from starlette.middleware.cors import CORSMiddleware
+from app.core.config import settings
 
 app = FastAPI()
+origins = settings.allow_origins.split(',')
 
-#modify origin
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[""],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

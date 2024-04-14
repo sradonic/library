@@ -1,3 +1,4 @@
+import os
 from pydantic_settings import BaseSettings
 
 
@@ -6,9 +7,10 @@ class Settings(BaseSettings):
     secret_key: str
     algorithm: str
     access_token_expire_minutes: int
+    allow_origins: str
 
     class Config:
-        env_file = ".env"
-
+        project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+        env_file = os.path.join(project_root, '.env')
 
 settings = Settings()
