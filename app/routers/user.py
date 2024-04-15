@@ -18,8 +18,11 @@ async def read_users_me(
     return current_user
 
 
-@router.post("/users/", response_model=User)
-async def create_new_user(user: UserCreate, db: Session = Depends(get_db)):
+@router.post("/users/", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin, UserRole.librarian]))])
+async def create_new_user(user: UserCreate, db: Session = Depends(get_db),
+                          current_user: User = Depends(get_current_active_user)):
+    if current_user.role.name not in [UserRole.admin.value, UserRole.librarian.value]:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can view user details")
     return create_user(user=user, db=db)
 
 
@@ -52,7 +55,6 @@ async def read_user_details(user_id: int, db: Session = Depends(get_db),
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
 
-    # Check if the current user is allowed to view the requested user's details
     if current_user.role.name == UserRole.librarian and db_user.role.name != UserRole.customer:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
     elif current_user.role.name not in [UserRole.admin, UserRole.librarian]:
