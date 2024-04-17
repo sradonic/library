@@ -1,5 +1,4 @@
 from typing import Optional
-
 from pydantic import BaseModel, EmailStr, field_validator
 
 from app.schemas.role import Role
@@ -32,7 +31,8 @@ class User(UserBase):
     role: Role
 
     class Config:
-        orm_mode = True
+        from_attributes = True
+
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -47,4 +47,4 @@ class UserUpdate(BaseModel):
         return None
 
     class Config:
-        orm_mode = True
+        from_attributes = True

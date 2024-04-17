@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
+
 from app.schemas import User, Book
+
 
 class BorrowedBookBase(BaseModel):
     borrowed_date: datetime
@@ -18,5 +20,5 @@ class BorrowedBook(BorrowedBookBase):
     book: Book
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 

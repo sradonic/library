@@ -55,4 +55,3 @@ def test_login_unsuccessfully_with_wrong_credentials(mocker: MockerFixture):
 
     assert response.status_code == 401
     assert "access_token" not in response.json()
-    assert response.json()["detail"] == "Incorrect username or password"

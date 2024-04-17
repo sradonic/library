@@ -28,6 +28,15 @@ def session(test_db):
     finally:
         db_session.close()
 
+@pytest.fixture(scope="function", autouse=True)
+def cleanup_db(session):
+    yield
+    session.query(BorrowedBook).delete()
+    session.query(Book).delete()
+    session.query(User).delete()
+    session.query(Role).delete()
+    session.commit()
+
 @pytest.fixture
 def roles(session):
     roles = {

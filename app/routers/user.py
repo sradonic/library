@@ -19,24 +19,21 @@ async def read_users_me(
 
 
 @router.post("/users/", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin, UserRole.librarian]))])
-async def create_new_user(user: UserCreate, db: Session = Depends(get_db),
-                          current_user: User = Depends(get_current_active_user)):
-    if current_user.role.name not in [UserRole.admin.value, UserRole.librarian.value]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can view user details")
+async def create_new_user(user: UserCreate,
+                          db: Session = Depends(get_db)):
     return create_user(user=user, db=db)
 
 
 @router.put("/users/{user_id}", response_model=User, dependencies=[Depends(RoleChecker([UserRole.admin]))])
-async def edit_user_details(user_id: int, user_data: UserUpdate, db: Session = Depends(get_db),
-                            current_user: User = Depends(get_current_active_user)):
-    if current_user.role.name != UserRole.admin:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only admins can edit user details")
+async def edit_user_details(user_id: int,
+                            user_data: UserUpdate,
+                            db: Session = Depends(get_db)):
     return update_user(user_id, user_data, db)
 
 
-@router.get("/users/", response_model=List[User],
-            dependencies=[Depends(RoleChecker([UserRole.admin, UserRole.librarian]))])
-async def list_users(role: Optional[UserRole] = None, skip: int = 0, limit: Optional[int] = None,
+@router.get("/users/", response_model=List[User],dependencies=[Depends(RoleChecker([UserRole.admin, UserRole.librarian]))])
+async def list_users(role: Optional[UserRole] = None,
+                     skip: int = 0, limit: Optional[int] = None,
                      db: Session = Depends(get_db),
                      current_user: User = Depends(get_current_active_user)):
     if current_user.role.name == UserRole.librarian.value:
@@ -49,7 +46,8 @@ async def list_users(role: Optional[UserRole] = None, skip: int = 0, limit: Opti
 
 
 @router.get("/users/{user_id}", response_model=User)
-async def read_user_details(user_id: int, db: Session = Depends(get_db),
+async def read_user_details(user_id: int,
+                            db: Session = Depends(get_db),
                             current_user: User = Depends(get_current_active_user)):
     db_user = get_user_by_id(user_id=user_id, db=db)
     if not db_user:

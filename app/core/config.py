@@ -9,6 +9,8 @@ class Settings(BaseSettings):
     algorithm: str
     access_token_expire_minutes: int
     allow_origins: str
+    log_to_file: bool
+    log_level: str
 
     class Config:
         project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))

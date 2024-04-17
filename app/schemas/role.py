@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+
 from app.constants.user_role import UserRole
 
 
